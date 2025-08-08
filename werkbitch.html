@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting Hat Task Shuffler</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=EB+Garamond&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'EB Garamond', serif;
+    color: #ffddaa;
+    background: radial-gradient(circle at top, #2c1a27, #1a0f1f, #000);
+    min-height: 100vh;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Magical sparkle effect */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.5), transparent),
+                      radial-gradient(2px 2px at 80% 60%, rgba(255,255,255,0.3), transparent),
+                      radial-gradient(1.5px 1.5px at 50% 90%, rgba(255,255,255,0.4), transparent);
+    background-size: cover;
+    pointer-events: none;
+    animation: sparkle 6s infinite linear;
+  }
+  @keyframes sparkle {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
+  .hat {
+    display: block;
+    margin: 0 auto 10px;
+    width: 150px;
+    animation: floatHat 3s ease-in-out infinite;
+  }
+  @keyframes floatHat {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(2deg); }
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2.8em;
+    font-family: 'Cinzel Decorative', cursive;
+    color: gold;
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: rgba(255, 244, 214, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 14px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(255, 215, 0, 0.3);
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #ffd700;
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+  }
+
+  textarea, select {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 1em;
+    background: rgba(255,255,255,0.08);
+    color: white;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  textarea:focus, select:focus {
+    background: rgba(255,255,255,0.15);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  }
+
+  select option {
+    background: #2c1a27;
+    color: white;
+  }
+
+  button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #b58900, #ffd700);
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #1e1e1e;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+    font-family: 'Cinzel Decorative', cursive;
+  }
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.8);
+  }
+  button:active {
+    transform: scale(0.97);
+  }
+
+  .results {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    font-size: 1.05em;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    font-family: 'EB Garamond', serif;
+  }
+
+  .hat-quote {
+    text-align: center;
+    font-style: italic;
+    color: #ffeb99;
+    margin-bottom: 15px;
+    min-height: 24px;
+  }
+  footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #c7a97b;
+      text-align: center;
+    }
+</style>
+</head>
+<body>
+
+<img src="image.png" alt="Sorting Hat" class="hat">
+<h1>Sorting Hat Task Shuffler</h1>
+<div class="hat-quote" id="hatQuote"></div>
+
+<div class="card">
+  <label>Enter Tasks (one per line):</label>
+  <textarea id="tasks" rows="4" placeholder="Task 1&#10;Task 2&#10;Task 3"></textarea>
+</div>
+
+<div class="card">
+  <label>Enter Volunteers (one per line):</label>
+  <textarea id="volunteers" rows="6" placeholder="Name 1&#10;Name 2&#10;Name 3"></textarea>
+</div>
+
+<div class="card">
+  <label>Mode:</label>
+  <select id="mode">
+    <option value="multiple">Multiple Tasks (assign evenly)</option>
+    <option value="group-duo">Single Task - Duos</option>
+    <option value="group-trio">Single Task - Trios</option>
+  </select>
+</div>
+
+<div class="card">
+  <button onclick="shuffleTasks()">Let the Hat Decide</button>
+</div>
+
+<div class="card results" id="results"></div>
+<footer>made with ❤️ by tanvisha</footer>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+
+
+function shuffleTasks() {
+  document.getElementById("hatQuote").textContent = hatPhrases[Math.floor(Math.random()*hatPhrases.length)];
+
+  let tasks = document.getElementById("tasks").value.trim().split("\n").filter(Boolean);
+  let volunteers = document.getElementById("volunteers").value.trim().split("\n").filter(Boolean);
+  let mode = document.getElementById("mode").value;
+
+  volunteers.sort(() => Math.random() - 0.5);
+
+  let output = "";
+
+  if (mode === "multiple") {
+    let taskCount = tasks.length;
+    let baseSize = Math.floor(volunteers.length / taskCount);
+    let remainder = volunteers.length % taskCount;
+    let idx = 0;
+    tasks.forEach((task, i) => {
+      let size = baseSize + (i < remainder ? 1 : 0);
+      output += `\n${task}:\n - ${volunteers.slice(idx, idx + size).join("\n - ")}\n`;
+      idx += size;
+    });
+  } else {
+    let groupSize = mode === "group-duo" ? 2 : 3;
+    let groups = [];
+    for (let i = 0; i < volunteers.length; i += groupSize) {
+      groups.push(volunteers.slice(i, i + groupSize));
+    }
+    tasks = tasks.length ? tasks : ["Group"];
+    groups.forEach((group, i) => {
+      output += `${tasks[0]} ${i+1}:\n - ${group.join("\n - ")}\n\n`;
+    });
+  }
+
+  document.getElementById("results").textContent = output;
+
+  confetti({
+    particleCount: 120,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+}
+</script>
+</body>
+</html>
